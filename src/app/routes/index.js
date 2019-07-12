@@ -1,3 +1,5 @@
+const videoCreateRoute = require('./videoCreateRoute');
+
 const routes = app => {
   app.get('/', (req, res) =>
     res.send({
@@ -6,6 +8,8 @@ const routes = app => {
       content: { message: 'server is running' },
     }),
   );
+
+  videoCreateRoute(app);
 };
 
 module.exports = routes;

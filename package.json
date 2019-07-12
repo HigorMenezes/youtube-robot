@@ -1,0 +1,29 @@
+{
+  "name": "youtube-robot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/HigorMenezes/youtube-robot.git",
+  "author": "Higor Menezes <higor_menezes96@hotmail.com.br>",
+  "license": "MIT",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "prettier:fix": "prettier --config ./.prettierrc.json --write  './src/**/*.js'",
+    "eslint:fix": "eslint --fix './src/**/*.js'"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^8.0.0",
+    "express": "^4.17.1",
+    "helmet": "^3.18.0"
+  },
+  "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-config-prettier": "^6.0.0",
+    "eslint-plugin-import": "^2.18.0",
+    "eslint-plugin-prettier": "^3.1.0",
+    "nodemon": "^1.19.1",
+    "prettier": "^1.18.2"
+  }
+}

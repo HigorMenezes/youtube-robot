@@ -38,7 +38,15 @@ const sanitizeContent = content => {
 
 const breakContentIntoSentences = content => {
   console.info('Initializing break content into sentence');
-  const sentences = sentenceBoundaryDetection.sentences(content);
+  const sentences = sentenceBoundaryDetection
+    .sentences(content)
+    .map(sentence => {
+      return {
+        text: sentence,
+        keywords: [],
+        images: [],
+      };
+    });
 
   return sentences;
 };

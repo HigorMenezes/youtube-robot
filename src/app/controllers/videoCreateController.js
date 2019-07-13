@@ -12,11 +12,7 @@ const videoCreateController = {
             code: 200,
             message: 'Video created with success',
             content: {
-              request: {
-                term,
-                prefix,
-              },
-              summary: orchestratorResponse.summary,
+              ...orchestratorResponse,
             },
           });
         }
@@ -38,6 +34,7 @@ const videoCreateController = {
         },
       });
     } catch (error) {
+      console.error('Server error - videoCreate', error);
       return res.send({
         code: 500,
         message: 'Server error - videoCreate',

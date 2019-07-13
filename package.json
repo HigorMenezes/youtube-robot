@@ -16,7 +16,8 @@
     "cors": "^2.8.5",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",
-    "helmet": "^3.18.0"
+    "helmet": "^3.18.0",
+    "sbd": "^1.0.15"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

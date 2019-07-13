@@ -1,10 +1,10 @@
 const algorithmia = require('algorithmia');
+const sentenceBoundaryDetection = require('sbd');
+
 const algorithmiaConfig = require('../../configs/algorithmiaConfig');
 
 const fetchContentFromWikipedia = async content => {
-  console.info(
-    `Initializing research for content: ${JSON.stringify(content, null, 4)}`,
-  );
+  console.info('Initializing research for content');
 
   const algorithmiaAuthenticated = algorithmia(
     algorithmiaConfig.algorithmiaApiKey,
@@ -15,36 +15,49 @@ const fetchContentFromWikipedia = async content => {
   const wikipediaResponse = await wikipediaAlgorithm.pipe(content.term);
   const wikipediaContent = wikipediaResponse.get();
 
-  console.info(
-    'Wikipedia response: ',
-    JSON.stringify(wikipediaContent.summary, null, 4),
-  );
+  return wikipediaContent.content;
+};
 
-  return wikipediaContent;
+const sanitizeContent = content => {
+  console.info('Initializing sanitize for content');
+
+  const contentSanitized = content
+    .split('\n')
+    .filter(line => {
+      if (line.trim().length === 0 || line.trim().startsWith('=')) {
+        return false;
+      }
+      return true;
+    })
+    .join(' ')
+    .replace(/\(.*?\)/g, '')
+    .replace(/( ){2,}/g, ' ');
+
+  return contentSanitized;
+};
+
+const breakContentIntoSentences = content => {
+  console.info('Initializing break content into sentence');
+  const sentences = sentenceBoundaryDetection.sentences(content);
+
+  return sentences;
 };
 
 const textRobot = async content => {
   console.info(
     `Content received with success: ${JSON.stringify(content, null, 4)}`,
   );
+
   const wikipediaContent = await fetchContentFromWikipedia(content);
+  const wikipediaContentSanitized = await sanitizeContent(wikipediaContent);
+  const sentences = breakContentIntoSentences(wikipediaContentSanitized);
 
-  return wikipediaContent;
-};
-
-const sanitizeContent = content => {
-  console.info(
-    `Initializing sanitize for content: ${JSON.stringify(content, null, 4)}`,
-  );
-};
-const breakContentIntoSentences = content => {
-  console.info(
-    `Initializing break content into sentence: ${JSON.stringify(
-      content,
-      null,
-      4,
-    )}`,
-  );
+  return {
+    ...content,
+    sourceContentOriginal: wikipediaContent.content,
+    sourceContentSanitized: wikipediaContentSanitized,
+    sentences,
+  };
 };
 
 module.exports = textRobot;

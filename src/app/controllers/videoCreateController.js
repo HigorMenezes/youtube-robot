@@ -1,4 +1,5 @@
 const videoCreateConfig = require('../../configs/videoCreateConfig');
+const orchestrator = require('../../ orchestrator');
 
 const videoCreateController = {
   create: async (req, res) => {
@@ -6,6 +7,7 @@ const videoCreateController = {
       if (req && req.body && req.body.term && req.body.prefix) {
         const { term, prefix } = req.body;
         if (videoCreateConfig.prefixes.includes(prefix)) {
+          const orchestratorResponse = await orchestrator({ term, prefix });
           return res.send({
             code: 200,
             message: 'Video created with success',
@@ -14,6 +16,7 @@ const videoCreateController = {
                 term,
                 prefix,
               },
+              summary: orchestratorResponse.summary,
             },
           });
         }

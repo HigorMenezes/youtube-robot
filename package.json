@@ -12,6 +12,7 @@
     "eslint:fix": "eslint --fix './src/**/*.js'"
   },
   "dependencies": {
+    "algorithmia": "^0.3.10",
     "cors": "^2.8.5",
     "dotenv": "^8.0.0",
     "express": "^4.17.1",

@@ -4,6 +4,7 @@ const NaturalLanguageUnderstandingV1 = require('ibm-watson/natural-language-unde
 
 const watsonConfig = require('../../configs/watsonConfig');
 const algorithmiaConfig = require('../../configs/algorithmiaConfig');
+const stateRobot = require('./stateRobot');
 
 const nlu = new NaturalLanguageUnderstandingV1({
   iam_apikey: watsonConfig.apiKey,
@@ -82,7 +83,8 @@ async function buildFinalSentencesObject(sentences) {
   return result;
 }
 
-async function textRobot(content) {
+async function textRobot() {
+  const content = stateRobot.load();
   console.info(
     `Content received with success: ${JSON.stringify(content, null, 4)}`,
   );
@@ -92,12 +94,12 @@ async function textRobot(content) {
   sentences = limitMaximumSentences(sentences);
   sentences = await buildFinalSentencesObject(sentences);
 
-  return {
+  stateRobot.save({
     ...content,
     sourceContentOriginal: wikipediaContent.content,
     sourceContentSanitized: wikipediaContentSanitized,
     sentences,
-  };
+  });
 }
 
 module.exports = textRobot;

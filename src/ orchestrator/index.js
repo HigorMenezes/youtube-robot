@@ -1,9 +1,13 @@
 const textRobot = require('./robots/textRobot');
+const stateRobot = require('./robots/stateRobot');
 
 const orchestrator = async content => {
-  const orchestratorResponse = await textRobot(content);
+  stateRobot.save(content);
+  await textRobot();
 
-  return orchestratorResponse;
+  const finalContent = stateRobot.load();
+  console.dir(finalContent, { depth: null });
+  return { sentences: finalContent.sentences };
 };
 
 module.exports = orchestrator;

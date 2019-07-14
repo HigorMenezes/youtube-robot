@@ -21,14 +21,23 @@ async function fetchGoogleAndReturnImageLinks(query) {
   return imageUrls;
 }
 
+async function fetchImagesOfAllSentences(content) {
+  const { sentences } = content;
+  const result = [];
+  for (let index = 0; index < sentences.length; index += 1) {
+    const query = `${content.term} ${sentences[index].keywords[0]}`;
+    result.push({
+      ...sentences[index],
+      images: await fetchGoogleAndReturnImageLinks(query),
+    });
+  }
+  return result;
+}
+
 async function imageRobot() {
   const content = stateRobot.load();
-
-  console.dir(await fetchGoogleAndReturnImageLinks('Michael Jackson'), {
-    depth: null,
-  });
-
-  process.exit(0);
+  content.sentences = await fetchImagesOfAllSentences(content);
+  stateRobot.save(content);
 }
 
 module.exports = imageRobot;

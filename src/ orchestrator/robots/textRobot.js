@@ -11,7 +11,7 @@ const nlu = new NaturalLanguageUnderstandingV1({
   url: 'https://gateway.watsonplatform.net/natural-language-understanding/api/',
 });
 
-const fetchContentFromWikipedia = async content => {
+async function fetchContentFromWikipedia(content) {
   console.info('Initializing research for content');
 
   const algorithmiaAuthenticated = algorithmia(
@@ -24,9 +24,9 @@ const fetchContentFromWikipedia = async content => {
   const wikipediaContent = wikipediaResponse.get();
 
   return wikipediaContent.content;
-};
+}
 
-const sanitizeContent = content => {
+async function sanitizeContent(content) {
   console.info('Initializing sanitize for content');
 
   const contentSanitized = content
@@ -42,20 +42,20 @@ const sanitizeContent = content => {
     .replace(/( ){2,}/g, ' ');
 
   return contentSanitized;
-};
+}
 
-const breakContentIntoSentences = async content => {
+async function breakContentIntoSentences(content) {
   console.info('Initializing break content into sentence');
   const sentences = sentenceBoundaryDetection.sentences(content);
   return sentences;
-};
+}
 
-const limitMaximumSentences = sentences => {
+function limitMaximumSentences(sentences) {
   console.info('Initializing limit maximum sentences');
   return sentences.slice(0, 7);
-};
+}
 
-const fetchWatsonAndReturnKeywords = async sentence => {
+async function fetchWatsonAndReturnKeywords(sentence) {
   const watsonAnalyzedResponse = await nlu.analyze({
     text: sentence,
     features: {
@@ -67,9 +67,9 @@ const fetchWatsonAndReturnKeywords = async sentence => {
   });
 
   return keywords;
-};
+}
 
-const buildFinalSentencesObject = async sentences => {
+async function buildFinalSentencesObject(sentences) {
   console.info('Initializing build final sentences object');
   const result = [];
   for (let index = 0; index < sentences.length; index += 1) {
@@ -80,9 +80,9 @@ const buildFinalSentencesObject = async sentences => {
     });
   }
   return result;
-};
+}
 
-const textRobot = async content => {
+async function textRobot(content) {
   console.info(
     `Content received with success: ${JSON.stringify(content, null, 4)}`,
   );
@@ -98,6 +98,6 @@ const textRobot = async content => {
     sourceContentSanitized: wikipediaContentSanitized,
     sentences,
   };
-};
+}
 
 module.exports = textRobot;

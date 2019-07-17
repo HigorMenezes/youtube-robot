@@ -1,4 +1,5 @@
 const google = require('googleapis');
+const imageDownloader = require('image-downloader');
 const stateRobot = require('./stateRobot');
 
 const googleConfig = require('../../configs/googleConfig');
@@ -33,7 +34,12 @@ async function fetchImagesOfAllSentences(content) {
   }
   return result;
 }
-
+async function downloadAndSaveImage(url, fileName) {
+  return imageDownloader.image({
+    url,
+    dest: `./content/${fileName}`,
+  });
+}
 async function downloadAllImages(content) {
   const { sentences } = content;
   const downloadedImages = [];
@@ -52,7 +58,7 @@ async function downloadAllImages(content) {
           throw new Error('This image has already been downloaded');
         }
 
-        // await downloadImage()
+        await downloadAndSaveImage(imageUrl, `${sentenceIndex}-original.png`);
         downloadedImages.push(imageUrl);
         console.info(
           `imageRobot: [${sentenceIndex}][${imageIndex}] Image download complete with success: ${imageUrl}`,

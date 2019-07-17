@@ -8,7 +8,6 @@ const orchestrator = async content => {
   await imageRobot();
 
   const finalContent = stateRobot.load();
-  console.dir(finalContent, { depth: null });
   return { sentences: finalContent.sentences };
 };
 

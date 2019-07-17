@@ -19,6 +19,7 @@
     "googleapis": "^41.0.0",
     "helmet": "^3.18.0",
     "ibm-watson": "^4.2.2",
+    "image-downloader": "^3.4.2",
     "sbd": "^1.0.15"
   },
   "devDependencies": {

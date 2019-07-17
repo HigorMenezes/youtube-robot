@@ -34,10 +34,44 @@ async function fetchImagesOfAllSentences(content) {
   return result;
 }
 
+async function downloadAllImages(content) {
+  const { sentences } = content;
+  const downloadedImages = [];
+
+  for (
+    let sentenceIndex = 0;
+    sentenceIndex < sentences.length;
+    sentenceIndex += 1
+  ) {
+    const { images } = sentences[sentenceIndex];
+    for (let imageIndex = 0; imageIndex < images.length; imageIndex += 1) {
+      const imageUrl = images[imageIndex];
+
+      try {
+        if (downloadedImages.includes(imageUrl)) {
+          throw new Error('This image has already been downloaded');
+        }
+
+        // await downloadImage()
+        downloadedImages.push(imageUrl);
+        console.info(
+          `imageRobot: [${sentenceIndex}][${imageIndex}] Image download complete with success: ${imageUrl}`,
+        );
+        break;
+      } catch (error) {
+        console.error(
+          `imageRobot: [${sentenceIndex}][${imageIndex}] Error during image download: ${imageUrl} ${error}`,
+        );
+      }
+    }
+  }
+}
+
 async function imageRobot() {
   const content = stateRobot.load();
-  content.sentences = await fetchImagesOfAllSentences(content);
-  stateRobot.save(content);
+  // content.sentences = await fetchImagesOfAllSentences(content);
+  await downloadAllImages(content);
+  // stateRobot.save(content);
 }
 
 module.exports = imageRobot;

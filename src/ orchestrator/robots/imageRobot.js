@@ -107,10 +107,10 @@ async function convertImage(sentenceIndex) {
           }
 
           console.log(`imageRobot: Image converted: ${outputFile}`);
-          resolve();
+          return resolve();
         });
     } catch (error) {
-      reject(error);
+      return reject(error);
     }
   });
 }
@@ -126,11 +126,78 @@ async function convertAllImages(content) {
   }
 }
 
+async function createSentence(sentenceIndex, sentenceText) {
+  return new Promise((resolve, reject) => {
+    const outputFile = `./content/${sentenceIndex}-sentence.png`;
+    const templateSettings = {
+      0: {
+        size: '1920x400',
+        gravity: 'center',
+      },
+      1: {
+        size: '1920x1080',
+        gravity: 'center',
+      },
+      2: {
+        size: '800x1080',
+        gravity: 'west',
+      },
+      3: {
+        size: '1920x400',
+        gravity: 'center',
+      },
+      4: {
+        size: '1920x1080',
+        gravity: 'center',
+      },
+      5: {
+        size: '800x1080',
+        gravity: 'west',
+      },
+      6: {
+        size: '1920x400',
+        gravity: 'center',
+      },
+    };
+    try {
+      gm()
+        .out('-size', templateSettings[sentenceIndex].size)
+        .out('-gravity', templateSettings[sentenceIndex].gravity)
+        .out('-background', 'transparent')
+        .out('-fill', 'white')
+        .out('-kerning', '-1')
+        .out(`caption:${sentenceText}`)
+        .write(outputFile, error => {
+          if (error) {
+            return reject(error);
+          }
+
+          console.log(`imageRobot: Sentence created: ${outputFile}`);
+          return resolve();
+        });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
+async function createAllSentences(content) {
+  const { sentences } = content;
+  for (
+    let sentenceIndex = 0;
+    sentenceIndex < sentences.length;
+    sentenceIndex += 1
+  ) {
+    await createSentence(sentenceIndex, sentences[sentenceIndex].text);
+  }
+}
+
 async function imageRobot() {
   const content = stateRobot.load();
   // content.sentences = await fetchImagesOfAllSentences(content);
   // await downloadAllImages(content);
-  await convertAllImages(content);
+  // await convertAllImages(content);
+  await createAllSentences(content);
   // stateRobot.save(content);
 }
 

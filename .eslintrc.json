@@ -14,6 +14,8 @@
   },
   "rules": {
     "prettier/prettier": true,
-    "no-await-in-loop": "off"
+    "no-console": "off",
+    "no-await-in-loop": "off",
+    "consistent-return": "off"
   }
 }

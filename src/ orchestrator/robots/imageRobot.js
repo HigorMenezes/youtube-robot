@@ -192,12 +192,32 @@ async function createAllSentences(content) {
   }
 }
 
+async function createYouTubeThumbnail() {
+  return new Promise((resolve, reject) => {
+    try {
+      gm()
+        .in('./content/0-converted.png')
+        .write('./content/youtube-thumbnail.jpg', error => {
+          if (error) {
+            return reject(error);
+          }
+
+          console.log('imageRobot: YouTube Thumbnail created');
+          return resolve();
+        });
+    } catch (error) {
+      return reject(error);
+    }
+  });
+}
+
 async function imageRobot() {
   const content = stateRobot.load();
   // content.sentences = await fetchImagesOfAllSentences(content);
   // await downloadAllImages(content);
   // await convertAllImages(content);
-  await createAllSentences(content);
+  // await createAllSentences(content);
+  await createYouTubeThumbnail(content);
   // stateRobot.save(content);
 }
 

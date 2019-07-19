@@ -1,5 +1,8 @@
 const gm = require('gm').subClass({ imageMagick: true });
+const videoshow = require('videoshow');
 const stateRobot = require('./stateRobot');
+
+const videoshowConfig = require('../../configs/videoshowConfig');
 
 async function convertImage(sentenceIndex) {
   return new Promise((resolve, reject) => {
@@ -33,7 +36,7 @@ async function convertImage(sentenceIndex) {
             return reject(error);
           }
 
-          console.log(`imageRobot: Image converted: ${outputFile}`);
+          console.log(`videoRobot: Image converted: ${outputFile}`);
           return resolve();
         });
     } catch (error) {
@@ -99,7 +102,7 @@ async function createSentence(sentenceIndex, sentenceText) {
             return reject(error);
           }
 
-          console.log(`imageRobot: Sentence created: ${outputFile}`);
+          console.log(`videoRobot: Sentence created: ${outputFile}`);
           return resolve();
         });
     } catch (error) {
@@ -129,7 +132,7 @@ async function createYouTubeThumbnail() {
             return reject(error);
           }
 
-          console.log('imageRobot: YouTube Thumbnail created');
+          console.log('videoRobot: YouTube Thumbnail created');
           return resolve();
         });
     } catch (error) {
@@ -138,12 +141,55 @@ async function createYouTubeThumbnail() {
   });
 }
 
-async function imageRobot() {
-  const content = stateRobot.load();
-  await convertAllImages(content);
-  await createAllSentences(content);
-  await createYouTubeThumbnail(content);
-  stateRobot.save(content);
+async function createVideo(content) {
+  const { sentences } = content;
+  const { options } = videoshowConfig;
+  const images = [
+    {
+      path: './content/youtube-thumbnail.jpg',
+      caption: `${content.prefix} - ${content.term}`,
+      loop: options.loop,
+    },
+  ];
+  for (
+    let sentenceIndex = 0;
+    sentenceIndex < sentences.length;
+    sentenceIndex += 1
+  ) {
+    images.push({
+      path: `./content/${sentenceIndex}-converted.png`,
+      caption: sentences[sentenceIndex].text,
+      loop: options.loop,
+    });
+  }
+  return new Promise((resolve, reject) => {
+    videoshow(images, options)
+      .audio('./content/bensound-creativeminds.mp3')
+      .save('./content/video.mp4')
+      .on('start', command => {
+        console.log('ffmpeg process started:', command);
+      })
+      .on('end', () => {
+        console.error('Video created with success');
+        return resolve();
+      })
+      .on('error', (err, stdout, stderr) => {
+        console.error('Error:', err);
+        console.error('ffmpeg stderr:', stderr);
+        reject();
+      });
+  });
 }
 
-module.exports = imageRobot;
+async function videoRobot() {
+  const content = stateRobot.load();
+  // await convertAllImages(content);
+  // await createAllSentences(content);
+  await createYouTubeThumbnail(content);
+
+  await createVideo(content);
+
+  // stateRobot.save(content);
+}
+
+module.exports = videoRobot;

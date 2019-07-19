@@ -4,9 +4,9 @@ const stateRobot = require('./robots/stateRobot');
 const videoRobot = require('./robots/videoRobot');
 
 const orchestrator = async content => {
-  stateRobot.save(content);
-  await textRobot();
-  await imageRobot();
+  // stateRobot.save(content);
+  // await textRobot();
+  // await imageRobot();
   await videoRobot();
 
   const finalContent = stateRobot.load();

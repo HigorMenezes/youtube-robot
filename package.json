@@ -21,7 +21,8 @@
     "helmet": "^3.18.0",
     "ibm-watson": "^4.2.2",
     "image-downloader": "^3.4.2",
-    "sbd": "^1.0.15"
+    "sbd": "^1.0.15",
+    "videoshow": "^0.1.11"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

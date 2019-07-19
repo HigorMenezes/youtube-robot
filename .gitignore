@@ -63,3 +63,4 @@ typings/
 # content
 content.json
 content/*.png
+content/*.jpg

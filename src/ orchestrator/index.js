@@ -5,11 +5,12 @@ const videoRobot = require('./robots/videoRobot');
 const youTubeRobot = require('./robots/youTubeRobot');
 
 const orchestrator = async content => {
+  console.info('Starting orchestrator');
   // stateRobot.save(content);
   // await textRobot();
   // await imageRobot();
-  await videoRobot();
-  // await youTubeRobot();
+  // await videoRobot();
+  await youTubeRobot();
 
   const finalContent = stateRobot.load();
   return { sentences: finalContent.sentences };

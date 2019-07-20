@@ -1,12 +1,12 @@
 const videoshowConfig = {
   options: {
     fps: 25,
-    loop: 5,
+    loop: 10,
     transition: true,
     transitionDuration: 1,
     videoBitrate: 1024,
     videoCodec: 'libx264',
-    size: '640x?',
+    size: '1280x720',
     audioBitrate: '128k',
     audioChannels: 2,
     format: 'mp4',

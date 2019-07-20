@@ -8,8 +8,8 @@ const customSearch = new google.customsearch_v1.Customsearch();
 
 async function fetchGoogleAndReturnImageLinks(query) {
   const response = await customSearch.cse.list({
-    auth: googleConfig.apiKey,
-    cx: googleConfig.searchEngineId,
+    auth: googleConfig.googleSearch.apiKey,
+    cx: googleConfig.googleSearch.searchEngineId,
     q: query,
     searchType: 'image',
     num: 2,
@@ -25,10 +25,20 @@ async function fetchGoogleAndReturnImageLinks(query) {
 async function fetchImagesOfAllSentences(content) {
   const { sentences } = content;
   const result = [];
-  for (let index = 0; index < sentences.length; index += 1) {
-    const query = `${content.term} ${sentences[index].keywords[0]}`;
+  for (
+    let sentenceIndex = 0;
+    sentenceIndex < sentences.length;
+    sentenceIndex += 1
+  ) {
+    let query;
+    if (sentenceIndex === 0) {
+      query = `${content.term}}`;
+    } else {
+      query = `${content.term} ${sentences[sentenceIndex].keywords[0]}`;
+    }
+
     result.push({
-      ...sentences[index],
+      ...sentences[sentenceIndex],
       images: await fetchGoogleAndReturnImageLinks(query),
     });
   }

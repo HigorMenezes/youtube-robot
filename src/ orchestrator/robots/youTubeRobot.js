@@ -13,7 +13,9 @@ async function requestGoogleForAccessToken(OAuthClient, authorizationToken) {
         return reject(error);
       }
 
-      console.info('Access tokens received');
+      console.info(
+        '[youTubeRobot - requestGoogleForAccessToken] Access tokens received',
+      );
 
       OAuthClient.setCredentials(tokens);
       resolve();
@@ -71,39 +73,42 @@ async function uploadVideo(content) {
   });
 
   console.info(
-    `Video available at: https://youtu.be/${youTubeResponse.data.id}`,
+    `[youTubeRobot - uploadVideo] Video available at: https://youtu.be/${youTubeResponse.data.id}`,
   );
   return youTubeResponse.data;
 
   function onUploadProgress(event) {
     const progress = Math.round((event.bytesRead / videoFileSize) * 100);
-    console.info(`${progress}% completed`);
+    console.info(`[youTubeRobot - onUploadProgress] ${progress}% completed`);
   }
 }
 
-async function uploadThumbnail(videoInformation) {
-  const videoId = videoInformation.id;
-  const videoThumbnailFilePath = './content/youtube-thumbnail.jpg';
+// async function uploadThumbnail(videoInformation) {
+//   const videoId = videoInformation.id;
+//   const videoThumbnailFilePath = './content/youtube-thumbnail.jpg';
 
-  const requestParameters = {
-    videoId,
-    media: {
-      mimeType: 'image/jpeg',
-      body: fs.createReadStream(videoThumbnailFilePath),
-    },
-  };
+//   const requestParameters = {
+//     videoId,
+//     media: {
+//       mimeType: 'image/jpeg',
+//       body: fs.createReadStream(videoThumbnailFilePath),
+//     },
+//   };
 
-  await youTube.thumbnails.set(requestParameters);
-  console.info('Thumbnail uploaded');
-}
+//   await youTube.thumbnails.set(requestParameters);
+//   console.info('Thumbnail uploaded');
+// }
 
 async function youTubeRobot() {
-  console.info('Starting youtube robot');
+  console.info('[youTubeRobot] Starting youtube robot');
   const content = stateRobot.load();
 
   await authenticationWithOAuth(content);
   const videoInformation = await uploadVideo(content);
-  await uploadThumbnail(videoInformation);
+  content.videoUrl = `https://youtu.be/${videoInformation.id}`;
+  stateRobot.save(content);
+  console.info('[youTubeRobot] - video information ->', videoInformation);
+  // await uploadThumbnail(videoInformation);
 }
 
 module.exports = youTubeRobot;

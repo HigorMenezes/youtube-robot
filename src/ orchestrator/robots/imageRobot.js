@@ -12,7 +12,7 @@ async function fetchGoogleAndReturnImageLinks(query) {
     cx: googleConfig.googleSearch.searchEngineId,
     q: query,
     searchType: 'image',
-    num: 2,
+    num: 4,
   });
 
   const imageUrls = response.data.items.map(item => {
@@ -23,6 +23,9 @@ async function fetchGoogleAndReturnImageLinks(query) {
 }
 
 async function fetchImagesOfAllSentences(content) {
+  console.info(
+    '[imageRobot - fetchImagesOfAllSentences] Starting research for images with google research',
+  );
   const { sentences } = content;
   const result = [];
   for (
@@ -42,6 +45,9 @@ async function fetchImagesOfAllSentences(content) {
       images: await fetchGoogleAndReturnImageLinks(query),
     });
   }
+  console.info(
+    '[imageRobot - fetchImagesOfAllSentences] Finished research for images with google research',
+  );
   return result;
 }
 async function downloadAndSaveImage(url, fileName) {
@@ -51,8 +57,11 @@ async function downloadAndSaveImage(url, fileName) {
   });
 }
 async function downloadAllImages(content) {
+  console.info('[imageRobot - downloadAllImages] Starting download of images');
   const { sentences } = content;
-  const downloadedImages = [];
+  const downloadedImages = [
+    'https://lookaside.fbsbx.com/lookaside/crawler/media/?media_id=216311481960',
+  ];
 
   for (
     let sentenceIndex = 0;
@@ -65,29 +74,34 @@ async function downloadAllImages(content) {
 
       try {
         if (downloadedImages.includes(imageUrl)) {
-          throw new Error('This image has already been downloaded');
+          throw new Error(
+            '[imageRobot - downloadAllImages] This image has already been downloaded',
+          );
         }
 
         await downloadAndSaveImage(imageUrl, `${sentenceIndex}-original.png`);
         downloadedImages.push(imageUrl);
         console.info(
-          `imageRobot: [${sentenceIndex}][${imageIndex}] Image download complete with success: ${imageUrl}`,
+          `[imageRobot - downloadAllImages]: [${sentenceIndex}][${imageIndex}] Image download complete with success: ${imageUrl}`,
         );
         break;
       } catch (error) {
         console.error(
-          `imageRobot: [${sentenceIndex}][${imageIndex}] Error during image download: ${imageUrl} ${error}`,
+          `[imageRobot - downloadAllImages]: [${sentenceIndex}][${imageIndex}] Error during image download: ${imageUrl} ${error}`,
         );
       }
     }
   }
+  console.info('[imageRobot - downloadAllImages] Finished download of images');
 }
 
 async function imageRobot() {
+  console.info('[imageRobot] Starting image robot');
   const content = stateRobot.load();
   content.sentences = await fetchImagesOfAllSentences(content);
   await downloadAllImages(content);
   stateRobot.save(content);
+  console.info('[imageRobot] Finished image robot');
 }
 
 module.exports = imageRobot;

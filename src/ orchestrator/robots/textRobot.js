@@ -13,7 +13,9 @@ const nlu = new NaturalLanguageUnderstandingV1({
 });
 
 async function fetchContentFromWikipedia(content) {
-  console.info('Initializing research for content');
+  console.info(
+    '[textRobot - fetchContentFromWikipedia] Starting fetch from wikipedia',
+  );
 
   const algorithmiaAuthenticated = algorithmia(
     algorithmiaConfig.algorithmiaApiKey,
@@ -23,14 +25,17 @@ async function fetchContentFromWikipedia(content) {
   );
   const wikipediaResponse = await wikipediaAlgorithm.pipe(content.term);
   const wikipediaContent = wikipediaResponse.get();
-
+  console.info(
+    '[textRobot - fetchContentFromWikipedia] Finished fetch from wikipedia',
+  );
   return wikipediaContent.content;
 }
 
 async function sanitizeContent(content) {
-  console.info('Initializing sanitize for content');
+  console.info('[textRobot - sanitizeContent] Starting sanitize content');
+  const { wikipediaContent } = content;
 
-  const contentSanitized = content
+  const contentSanitized = wikipediaContent
     .split('\n')
     .filter(line => {
       if (line.trim().length === 0 || line.trim().startsWith('=')) {
@@ -41,22 +46,36 @@ async function sanitizeContent(content) {
     .join(' ')
     .replace(/\(.*?\)/g, '')
     .replace(/( ){2,}/g, ' ');
-
+  console.info('[textRobot - sanitizeContent] Finished sanitize content');
   return contentSanitized;
 }
 
 async function breakContentIntoSentences(content) {
-  console.info('Initializing break content into sentence');
-  const sentences = sentenceBoundaryDetection.sentences(content);
+  console.info(
+    '[textRobot - breakContentIntoSentences] Starting break content in sentences',
+  );
+  const { wikipediaContentSanitized } = content;
+  const sentences = sentenceBoundaryDetection.sentences(
+    wikipediaContentSanitized,
+  );
+  console.info(
+    '[textRobot - breakContentIntoSentences] Finished break content in sentences',
+  );
   return sentences;
 }
 
-function limitMaximumSentences(sentences) {
-  console.info('Initializing limit maximum sentences');
-  return sentences.slice(0, 7);
+function limitMaximumSentences(content) {
+  console.info(
+    '[textRobot - limitMaximumSentences] Limiting maximum sentences',
+  );
+  const { sentences } = content;
+  return sentences.slice(0, 10);
 }
 
 async function fetchWatsonAndReturnKeywords(sentence) {
+  console.info(
+    '[textRobot - fetchWatsonAndReturnKeywords] Starting fetch watson keywords',
+  );
   const watsonAnalyzedResponse = await nlu.analyze({
     text: sentence,
     features: {
@@ -66,13 +85,24 @@ async function fetchWatsonAndReturnKeywords(sentence) {
   const keywords = watsonAnalyzedResponse.keywords.map(keyword => {
     return keyword.text;
   });
-
+  console.info(
+    '[textRobot - fetchWatsonAndReturnKeywords] Finished fetch watson keywords',
+  );
   return keywords;
 }
 
-async function buildFinalSentencesObject(sentences) {
-  console.info('Initializing build final sentences object');
-  const result = [];
+async function buildFinalSentencesObject(content) {
+  console.info(
+    '[textRobot - buildFinalSentencesObject] Starting build final sentences object',
+  );
+  const { sentences } = content;
+  const result = [
+    {
+      text: `${content.prefix} - ${content.term}`,
+      keywords: [content.prefix],
+      images: [],
+    },
+  ];
   for (let index = 0; index < sentences.length; index += 1) {
     result.push({
       text: sentences[index],
@@ -80,26 +110,23 @@ async function buildFinalSentencesObject(sentences) {
       images: [],
     });
   }
+  console.info(
+    '[textRobot - buildFinalSentencesObject] Finished build final sentences object',
+  );
   return result;
 }
 
 async function textRobot() {
+  console.info('[textRobot] Starting text robot');
   const content = stateRobot.load();
-  console.info(
-    `Content received with success: ${JSON.stringify(content, null, 4)}`,
-  );
-  const wikipediaContent = await fetchContentFromWikipedia(content);
-  const wikipediaContentSanitized = await sanitizeContent(wikipediaContent);
-  let sentences = await breakContentIntoSentences(wikipediaContentSanitized);
-  sentences = limitMaximumSentences(sentences);
-  sentences = await buildFinalSentencesObject(sentences);
+  content.wikipediaContent = await fetchContentFromWikipedia(content);
+  content.wikipediaContentSanitized = await sanitizeContent(content);
+  content.sentences = await breakContentIntoSentences(content);
+  content.sentences = limitMaximumSentences(content);
+  content.sentences = await buildFinalSentencesObject(content);
 
-  stateRobot.save({
-    ...content,
-    sourceContentOriginal: wikipediaContent.content,
-    sourceContentSanitized: wikipediaContentSanitized,
-    sentences,
-  });
+  stateRobot.save(content);
+  console.info('[textRobot] Finished text robot');
 }
 
 module.exports = textRobot;

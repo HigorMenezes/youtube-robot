@@ -36,7 +36,9 @@ async function convertImage(sentenceIndex) {
             return reject(error);
           }
 
-          console.log(`videoRobot: Image converted: ${outputFile}`);
+          console.info(
+            `[videoRobot - convertAllImages]: Image converted: ${outputFile}`,
+          );
           return resolve();
         });
     } catch (error) {
@@ -46,6 +48,7 @@ async function convertImage(sentenceIndex) {
 }
 
 async function convertAllImages(content) {
+  console.info('[videoRobot - convertAllImages] Starting images conversion');
   const { sentences } = content;
   for (
     let sentenceIndex = 0;
@@ -54,6 +57,7 @@ async function convertAllImages(content) {
   ) {
     await convertImage(sentenceIndex);
   }
+  console.info('[videoRobot - convertAllImages] Finished images conversion');
 }
 
 // async function createSentence(sentenceIndex, sentenceText) {
@@ -102,7 +106,7 @@ async function convertAllImages(content) {
 //             return reject(error);
 //           }
 
-//           console.log(`videoRobot: Sentence created: ${outputFile}`);
+//           console.info(`videoRobot: Sentence created: ${outputFile}`);
 //           return resolve();
 //         });
 //     } catch (error) {
@@ -132,7 +136,9 @@ async function createYouTubeThumbnail() {
             return reject(error);
           }
 
-          console.log('videoRobot: YouTube Thumbnail created');
+          console.info(
+            '[videoRobot - createYouTubeThumbnail]: YouTube Thumbnail created',
+          );
           return resolve();
         });
     } catch (error) {
@@ -144,13 +150,7 @@ async function createYouTubeThumbnail() {
 async function createVideo(content) {
   const { sentences } = content;
   const { options } = videoshowConfig;
-  const images = [
-    {
-      path: './content/youtube-thumbnail.jpg',
-      caption: `${content.prefix} - ${content.term}`,
-      loop: options.loop,
-    },
-  ];
+  const images = [];
   for (
     let sentenceIndex = 0;
     sentenceIndex < sentences.length;
@@ -167,29 +167,34 @@ async function createVideo(content) {
       .audio('./content/bensound-creativeminds.mp3')
       .save('./content/video.mp4')
       .on('start', command => {
-        console.log('ffmpeg process started:', command);
+        console.info(
+          '[videoRobot - createVideo]: ffmpeg process started:',
+          command,
+        );
       })
       .on('end', () => {
-        console.error('Video created with success');
+        console.info('[videoRobot - createVideo]: Video created with success');
         return resolve();
       })
       .on('error', (err, stdout, stderr) => {
-        console.error('Error:', err);
-        console.error('ffmpeg stderr:', stderr);
+        console.error('[videoRobot - createVideo] Error:', err);
+        console.error('[videoRobot - createVideo] ffmpeg stderr:', stderr);
         reject();
       });
   });
 }
 
 async function videoRobot() {
+  console.info('[videoRobot] Starting video robot');
   const content = stateRobot.load();
-  // await convertAllImages(content);
+  await convertAllImages(content);
   // await createAllSentences(content);
-  // await createYouTubeThumbnail(content);
+  await createYouTubeThumbnail(content);
 
   await createVideo(content);
 
-  // stateRobot.save(content);
+  stateRobot.save(content);
+  console.info('[videoRobot] Finished video robot');
 }
 
 module.exports = videoRobot;
